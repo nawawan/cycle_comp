@@ -226,7 +226,7 @@ class App(tk.Tk):
 if __name__ == "__main__":
 	app = App()
 	gpsthread = threading.Thread(target=rungps, args=())
-	count_thread = threading.Thread(taeget=calc_count, args=())
+	count_thread = threading.Thread(taeget=calc_stop, args=())
 	gpsthread.daemon = True
 	count_thread.daemon = True
 	gpsthread.start()
@@ -246,7 +246,7 @@ if __name__ == "__main__":
 		start += 1
 		tempspeed = gps.speed[2] - 0.3
 		tempdist = 0 if prev_speed == -1 else (prev_speed + tempspeed) / 7.2
-		grad = 0 if prev_alt == -1 else int((gps.altitude - prev_alt) / tempdist * 10) / 10
+		grad = 0 if prev_alt == -1 or tempdist == 0 else int((gps.altitude - prev_alt) / tempdist * 10) / 10
 		T, P, H = readData()
 		net_start += 1
 		if (abs(xyz[0] - gx < 0.02 and abs(xyz[1] - gy) < 0.02 and abs(xyz[2] - gz) < 0.02)) or calc_count % 2 == 1:
@@ -255,6 +255,7 @@ if __name__ == "__main__":
 			tempdist = 0
 			net_start -= 1
 			prev_alt = gps.altitude
+			if calc_count % 2 == 1: start -= 1
 		T = int(T * 1000) / 1000
 		h = gps.timestamp[0] if gps.timestamp[0] < 24 else gps.timestamp[0] - 24
 		speed = tk.Label(app.main_frame, text="速度 [km/h]\n" + str(int(tempspeed * 10) / 10), font=('Helvetica', '14'), relief=tk.RIDGE, bd=1)
