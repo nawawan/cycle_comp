@@ -244,7 +244,7 @@ if __name__ == "__main__":
 	while True:
 		xyz = lsm.accelerometer()
 		start += 1
-		tempspeed = gps.speed[2] - 0.3
+		tempspeed = gps.speed[2]
 		tempdist = 0 if prev_speed == -1 else (prev_speed + tempspeed) / 7.2
 		grad = 0 if prev_alt == -1 or tempdist == 0 else int((gps.altitude - prev_alt) / tempdist * 10) / 10
 		T, P, H = readData()
