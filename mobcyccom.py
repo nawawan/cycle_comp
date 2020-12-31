@@ -249,7 +249,7 @@ if __name__ == "__main__":
 		grad = 0 if prev_alt == -1 else int((gps.altitude - prev_alt) / tempdist * 10) / 10
 		T, P, H = readData()
 		net_start += 1
-		if abs(xyz[0] - gx < 0.02 and abs(xyz[1] - gy) < 0.02 and abs(xyz[2] - gz) < 0.02):
+		if (abs(xyz[0] - gx < 0.02 and abs(xyz[1] - gy) < 0.02 and abs(xyz[2] - gz) < 0.02)) or calc_count % 2 == 1:
 			tempspeed = 0
 			grad = 0
 			tempdist = 0
