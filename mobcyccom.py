@@ -237,7 +237,7 @@ class App(tk.Tk):
         global net_start
         global sumup
         path_f = "log.txt"
-        s = str(sumdist) + ' ' + str(start) + ' ' + str(net_start) + str(sumup)
+        s = str(sumdist) + ' ' + str(start) + ' ' + str(net_start) + ' ' + str(sumup)
         with open(path_f, mode='w') as f:
             f.write(s)
         self.destroy()
@@ -332,6 +332,7 @@ if __name__ == "__main__":
 		sumdist += tempdist
 		prev_alt = gps.altitude
 		prev_speed = gps.speed[2]
+		sumup += nowh - prev_alt
 		gx = xyz[0]
 		gy = xyz[1]
 		gz = xyz[2]
