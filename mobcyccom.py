@@ -239,7 +239,7 @@ class App(tk.Tk):
 if __name__ == "__main__":
 	app = App()
 	gpsthread = threading.Thread(target=rungps, args=())
-	count_thread = threading.Thread(taeget=calc_stop, args=())
+	count_thread = threading.Thread(target=calc_stop, args=())
 	gpsthread.daemon = True
 	count_thread.daemon = True
 	gpsthread.start()
