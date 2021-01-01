@@ -60,6 +60,8 @@ def calc_stop():
 	btn16 = gp.Button(16)
 	btn13.when_held = btn13_held
 	btn13.when_released = btn13_released
+	btn16.when_held = btn16_held
+	btn16.when_released = btn16_released
 	signal.pause()
 
 def rungps():
@@ -347,7 +349,7 @@ if __name__ == "__main__":
 		up.forget()
 		if prev_alt != -1 and prev_alt < nowh: sumup += nowh - prev_alt
 		sumdist += tempdist
-		prev_alt = gps.altitude
+		prev_alt = nowh
 		prev_speed = gps.speed[2]
 		gx = xyz[0]
 		gy = xyz[1]
