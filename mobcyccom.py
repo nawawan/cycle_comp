@@ -219,7 +219,7 @@ class App(tk.Tk):
         self.back_button = tk.Button(self.frame1, text="Quit", command=lambda : self.close_window())
         self.back_button.place(relheight=0.25, relwidth=0.5, relx=0.5, rely=0.75)
         self.back_button = tk.Button(self.frame1, text="海面気圧補正", command=lambda : self.calibrate_P())
-        self.back_button.place(relheight=0.25, relwidth=1, relx=0.5, rely=0.5)
+        self.back_button.place(relheight=0.25, relwidth=1, relx=0, rely=0.5)
 #--------------------------------------------------------------------------
 
         #main_frameを一番上に表示
@@ -235,13 +235,14 @@ class App(tk.Tk):
         global sumdist
         global start
         global net_start
+        global sumup
         path_f = "log.txt"
-        s = str(sumdist) + ' ' + str(start) + ' ' + str(net_start)
+        s = str(sumdist) + ' ' + str(start) + ' ' + str(net_start) + str(sumup)
         with open(path_f, mode='w') as f:
             f.write(s)
         self.destroy()
 	
-    def calivrate_P(self):
+    def calibrate_P(self):
         global sea_P
         temph = gps.altitude
         sea_P = P * ((1 - 0.0065 * temph / (T + 0.0065 * temph + 273.15)) ** (-5.257))
@@ -263,10 +264,11 @@ if __name__ == "__main__":
 	path_f = "log.txt"
 	if os.path.isfile(path_f):
 		with open(path_f, mode='r') as f:
-			sumdist, start, net_start = f.read().split()
-			sumdist = int(float(sumdist))
+			sumdist, start, net_start, sumup = f.read().split()
+			sumdist = float(sumdist)
 			start = int(start)
 			net_start = int(start)
+			sumup = float(sumup)
 	gx = -1
 	gy = -1
 	gz = -100
@@ -320,7 +322,7 @@ if __name__ == "__main__":
 		humid.place(relheight=0.25, relwidth=0.5, relx=0.5, rely=0.25)
 		humid.update()
 		humid.forget()
-		up = tk.Label(app.frame1, text="獲得標高 [m] \n" + str(sumup), font=('Helvetica', '14'), relief=tk.RIDGE, bd=1)
+		up = tk.Label(app.frame1, text="獲得標高 [m] \n" + str(int(sumup * 10) / 10), font=('Helvetica', '14'), relief=tk.RIDGE, bd=1)
 		up.place(relheight=0.25, relwidth=0.5, relx=0, rely=0.25)
 		up.update()
 		up.forget()
