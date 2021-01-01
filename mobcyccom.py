@@ -23,6 +23,10 @@ digH = []
 gp.Button.was_held = False
 calc_count = 0
 t_fine = 0.0
+sea_P = -1
+T = 0
+P = 0
+H = 0
 
 def btn_held(btn):
 	btn.was_held = True
@@ -214,6 +218,8 @@ class App(tk.Tk):
         self.back_button.place(relheight=0.25, relwidth=0.5, relx=0, rely=0.75)
         self.back_button = tk.Button(self.frame1, text="Quit", command=lambda : self.close_window())
         self.back_button.place(relheight=0.25, relwidth=0.5, relx=0.5, rely=0.75)
+        self.back_button = tk.Button(self.frame1, text="海面気圧補正", command=lambda : self.calibrate_P())
+        self.back_button.place(relheight=0.25, relwidth=1, relx=0.5, rely=0.5)
 #--------------------------------------------------------------------------
 
         #main_frameを一番上に表示
@@ -234,7 +240,11 @@ class App(tk.Tk):
         with open(path_f, mode='w') as f:
             f.write(s)
         self.destroy()
-
+	
+    def calivrate_P(self):
+        global sea_P
+        temph = gps.altitude
+        sea_P = P * ((1 - 0.0065 * temph / (T + 0.0065 * temph + 273.15)) ** (-5.257))
 
 if __name__ == "__main__":
 	app = App()
@@ -261,9 +271,10 @@ if __name__ == "__main__":
 		xyz = lsm.accelerometer()
 		start += 1
 		tempspeed = gps.speed[2]
-		tempdist = 0 if prev_speed == -1 else (prev_speed + tempspeed) / 7.2
-		grad = 0 if prev_alt == -1 or tempdist == 0 else int((gps.altitude - prev_alt) / tempdist * 10) / 10
 		T, P, H = readData()
+		nowh = gps.altitude if sea_P < P else ((sea_P / P) ** (-5.257) - 1) * (T + 273.15) / 0.0065
+		tempdist = 0 if prev_speed == -1 else (prev_speed + tempspeed) / 7.2
+		grad = 0 if prev_alt == -1 or tempdist == 0 else int((nowh - prev_alt) / tempdist * 10) / 10
 		net_start += 1
 		if (abs(xyz[0] - gx < 0.02 and abs(xyz[1] - gy) < 0.02 and abs(xyz[2] - gz) < 0.02)) or calc_count % 2 == 1:
 			tempspeed = 0
