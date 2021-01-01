@@ -251,7 +251,7 @@ if __name__ == "__main__":
 	start = 1
 	net_start = 1
 	path_f = "log.txt"
-	if not os.path.isfile(path_f):
+	if os.path.isfile(path_f):
 		with open(path_f, mode='r') as f:
 			sumdist, start, net_start = map(int, f.read().split())
 	gx = -1
