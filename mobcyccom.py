@@ -34,7 +34,15 @@ def btn13_held(btn):
 	calc_count += 1
 
 def btn16_held(btn):
-    btn.was_held = True
+	btn.was_held = True
+	global sumdist
+	global start
+	global net_start
+	global sumup
+	sumdist = 0
+	start = 1
+	net_start = 1
+	sumup = 0
 
 def btn13_released(btn):
 	if not btn.was_held:
@@ -43,16 +51,6 @@ def btn13_released(btn):
 	btn.was_held = False
 
 def btn16_released(btn):
-	if not btn.was_held:
-		global sumdist
-		global start
-		global net_start
-		global sumup
-		sumdist = 0
-		start = 0
-		net_start = 0
-		sumup = 0
-
 	btn.was_held = False
 
 def calc_stop():
@@ -208,7 +206,7 @@ class App(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
 
         # ウィンドウタイトルを決定
-        self.title("Tkinter change page")
+        self.title("cycle_computer")
 
         # ウィンドウの大きさを決定
         self.geometry("300x200")
