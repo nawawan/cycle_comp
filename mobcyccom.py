@@ -263,7 +263,8 @@ if __name__ == "__main__":
 	path_f = "log.txt"
 	if os.path.isfile(path_f):
 		with open(path_f, mode='r') as f:
-			sumdist, start, net_start = map(int, f.read().split())
+			sumdist, start, net_start = f.read().split()
+			sumdist = int(sumdist)
 	gx = -1
 	gy = -1
 	gz = -100
@@ -281,7 +282,7 @@ if __name__ == "__main__":
 			grad = 0
 			tempdist = 0
 			net_start -= 1
-			prev_alt = gps.altitude
+			prev_alt = nowh
 			if calc_count % 2 == 1: start -= 1
 		T = int(T * 1000) / 1000
 		h = gps.timestamp[0] if gps.timestamp[0] < 24 else gps.timestamp[0] - 24
