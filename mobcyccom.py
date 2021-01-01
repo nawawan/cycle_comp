@@ -265,6 +265,8 @@ if __name__ == "__main__":
 		with open(path_f, mode='r') as f:
 			sumdist, start, net_start = f.read().split()
 			sumdist = int(float(sumdist))
+			start = int(start)
+			net_start = int(start)
 	gx = -1
 	gy = -1
 	gz = -100
