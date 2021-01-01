@@ -244,7 +244,9 @@ class App(tk.Tk):
 	
     def calibrate_P(self):
         global sea_P
+        global prev_alt
         temph = gps.altitude
+        prev_alt = temph
         sea_P = P * ((1 - 0.0065 * temph / (T + 0.0065 * temph + 273.15)) ** (-5.257))
 
 if __name__ == "__main__":
