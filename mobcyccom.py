@@ -28,21 +28,38 @@ T = 0
 P = 0
 H = 0
 
-def btn_held(btn):
+def btn13_held(btn):
 	btn.was_held = True
 	global calc_count
 	calc_count += 1
 
-def btn_released(btn):
+def btn16_held(btn):
+    btn.was_held = True
+
+def btn13_released(btn):
 	if not btn.was_held:
 		global calc_count
 		calc_count += 1
 	btn.was_held = False
 
+def btn16_released(btn):
+	if not btn.was_held:
+		global sumdist
+		global start
+		global net_start
+		global sumup
+		sumdist = 0
+		start = 0
+		net_start = 0
+		sumup = 0
+
+	btn.was_held = False
+
 def calc_stop():
 	btn13 = gp.Button(13)
-	btn13.when_held = btn_held
-	btn13.when_released = btn_released
+	btn16 = gp.Button(16)
+	btn13.when_held = btn13_held
+	btn13.when_released = btn13_released
 	signal.pause()
 
 def rungps():
