@@ -38,7 +38,7 @@ def btn_released(btn):
 def calc_stop():
 	btn13 = gp.Button(13)
 	btn13.when_held = btn_held
-	btn13.when_release = btn_released
+	btn13.when_released = btn_released
 	signal.pause()
 
 def rungps():
@@ -212,7 +212,7 @@ class App(tk.Tk):
         # フレーム1からmainフレームに戻るボタン
         self.back_button = tk.Button(self.frame1, text="Back", command=lambda : self.changePage(self.main_frame))
         self.back_button.place(relheight=0.25, relwidth=0.5, relx=0, rely=0.75)
-        self.back_button = tk.Button(self.frame1, text="Quit", command=lambda : self.close_window(self))
+        self.back_button = tk.Button(self.frame1, text="Quit", command=lambda : self.close_window())
         self.back_button.place(relheight=0.25, relwidth=0.5, relx=0.5, rely=0.75)
 #--------------------------------------------------------------------------
 
