@@ -298,7 +298,7 @@ if __name__ == "__main__":
 		start += 1
 		tempspeed = gps.speed[2]
 		T, P, H = readData()
-		nowh = gps.altitude if sea_P < P else ((sea_P / P) ** (-5.257) - 1) * (T + 273.15) / 0.0065
+		nowh = gps.altitude if sea_P < P else ((sea_P / P) ** (1 / 5.257) - 1) * (T + 273.15) / 0.0065
 		tempdist = 0 if prev_speed == -1 else (prev_speed + tempspeed) / 7.2
 		grad = 0 if prev_alt == -1 or tempdist == 0 else int((nowh - prev_alt) / tempdist * 10) / 10
 		net_start += 1
