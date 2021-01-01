@@ -10,6 +10,7 @@ import micropyGPS
 import threading
 import gpiozero as gp
 import signal
+import os
 gps = micropyGPS.MicropyGPS(9, 'dd')
 bus_number  = 1
 i2c_address = 0x76
@@ -21,7 +22,6 @@ digP = []
 digH = []
 gp.Button.was_held = False
 calc_count = 0
-
 t_fine = 0.0
 
 def btn_held(btn):
@@ -211,7 +211,9 @@ class App(tk.Tk):
         self.frame1.grid(row=0, column=0, sticky="nsew")
         # フレーム1からmainフレームに戻るボタン
         self.back_button = tk.Button(self.frame1, text="Back", command=lambda : self.changePage(self.main_frame))
-        self.back_button.place(relheight=0.25, relwidth=1, relx=0, rely=0.75)
+        self.back_button.place(relheight=0.25, relwidth=0.5, relx=0, rely=0.75)
+        self.back_button = tk.Button(self.frame1, text="Quit", command=lambda : self.close_window(self))
+        self.back_button.place(relheight=0.25, relwidth=0.5, relx=0.5, rely=0.75)
 #--------------------------------------------------------------------------
 
         #main_frameを一番上に表示
@@ -222,6 +224,17 @@ class App(tk.Tk):
         画面遷移用の関数
         '''
         page.tkraise()
+	
+    def close_window(self):
+        global sumdist
+        global start
+        global net_start
+        path_f = "log.txt"
+        s = str(sumdist) + ' ' + str(start) + ' ' + str(net_start)
+        with open(path_f, mode='w') as f:
+            f.write(s)
+        self.destroy()
+
 
 if __name__ == "__main__":
 	app = App()
@@ -231,13 +244,16 @@ if __name__ == "__main__":
 	count_thread.daemon = True
 	gpsthread.start()
 	count_thread.start()
-	sumtime = 0
 	sumdist = 0
 	sumup = 0
 	prev_alt = -1
 	prev_speed = -1
 	start = 1
 	net_start = 1
+	path_f = "log.txt"
+	if not os.path.isfile(path_f):
+		with open(path_f, mode='r') as f:
+			sumdist, start, net_start = map(int, f.read().split())
 	gx = -1
 	gy = -1
 	gz = -100
@@ -296,7 +312,6 @@ if __name__ == "__main__":
 		up.forget()
 		if prev_alt != -1 and prev_alt < gps.altitude: sumup += gps.altitude - prev_alt
 		sumdist += tempdist
-		sumtime += 1
 		prev_alt = gps.altitude
 		prev_speed = gps.speed[2]
 		gx = xyz[0]
