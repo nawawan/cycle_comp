@@ -328,11 +328,10 @@ if __name__ == "__main__":
 		up.place(relheight=0.25, relwidth=0.5, relx=0, rely=0.25)
 		up.update()
 		up.forget()
-		if prev_alt != -1 and prev_alt < gps.altitude: sumup += gps.altitude - prev_alt
+		if prev_alt != -1 and prev_alt < nowh: sumup += nowh - prev_alt
 		sumdist += tempdist
 		prev_alt = gps.altitude
 		prev_speed = gps.speed[2]
-		sumup += nowh - prev_alt
 		gx = xyz[0]
 		gy = xyz[1]
 		gz = xyz[2]
