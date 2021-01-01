@@ -264,7 +264,7 @@ if __name__ == "__main__":
 	if os.path.isfile(path_f):
 		with open(path_f, mode='r') as f:
 			sumdist, start, net_start = f.read().split()
-			sumdist = int(sumdist)
+			sumdist = int(float(sumdist))
 	gx = -1
 	gy = -1
 	gz = -100
