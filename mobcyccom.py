@@ -48,7 +48,6 @@ def btn16_held(btn):
 	net_start = 1
 	sumup = 0
 
-
 def btn13_released(btn):
 	if not btn.was_held:
 		global calc_count
