@@ -39,6 +39,10 @@ def btn16_held(btn):
 	global start
 	global net_start
 	global sumup
+	global max_speed
+	global gradi
+	gradi = 0
+	max_speed = 0
 	sumdist = 0
 	start = 1
 	net_start = 1
@@ -66,7 +70,7 @@ def rungps():
     s = serial.Serial('/dev/serial0', 9600, timeout=10)
     s.readline()
     while True:
-        sentence = s.readline().decode('utf-8')
+        sentence = s.readline().decode('utf-8', errors='ignore')
         if sentence[0] != '$':
             continue
         for x in sentence:
@@ -209,7 +213,7 @@ class App(tk.Tk):
         self.title("cycle_computer")
 
         # ウィンドウの大きさを決定
-        self.geometry("300x200")
+        self.geometry("320x240")
 
         # ウィンドウのグリッドを 1x1 にする
         # この処理をコメントアウトすると配置がズレる
@@ -235,7 +239,7 @@ class App(tk.Tk):
         self.back_button.place(relheight=0.25, relwidth=0.5, relx=0, rely=0.75)
         self.back_button = tk.Button(self.frame1, text="Quit", command=lambda : self.close_window())
         self.back_button.place(relheight=0.25, relwidth=0.5, relx=0.5, rely=0.75)
-        self.back_button = tk.Button(self.frame1, text="海面気圧補正", command=lambda : self.calibrate_P())
+        self.back_button = tk.Button(self.frame1, text="斜度計算", command=lambda : self.calibrate_P())
         self.back_button.place(relheight=0.25, relwidth=1, relx=0, rely=0.5)
 #--------------------------------------------------------------------------
 
@@ -253,16 +257,25 @@ class App(tk.Tk):
         global start
         global net_start
         global sumup
+        global max_speed
         path_f = "log.txt"
-        s = str(sumdist) + ' ' + str(start) + ' ' + str(net_start) + ' ' + str(sumup)
+        s = str(max_speed) + ' ' + str(sumdist) + ' ' + str(start) + ' ' + str(net_start) + ' ' + str(sumup)
         with open(path_f, mode='w') as f:
             f.write(s)
         self.destroy()
+
 	
     def calibrate_P(self):
         global sea_P
         global prev_alt
+        global P
+        global T
+        global cal_temp
+        global sumdist
+        global cal_prevh
         temph = gps.altitude
+        cal_temp = sumdist
+        cal_prevh = temph
         prev_alt = temph
         sea_P = P * ((1 - 0.0065 * temph / (T + 0.0065 * temph + 273.15)) ** (-5.257))
 
@@ -278,19 +291,24 @@ if __name__ == "__main__":
 	sumup = 0
 	prev_alt = -1
 	prev_speed = -1
+	max_speed = 0
 	start = 1
 	net_start = 1
-	path_f = "log.txt"
+	cal_temp = 100000
+	path_f = "log1.txt"
 	if os.path.isfile(path_f):
 		with open(path_f, mode='r') as f:
-			sumdist, start, net_start, sumup = f.read().split()
+			max_speed, sumdist, start, net_start, sumup = f.read().split()
 			sumdist = float(sumdist)
+			max_speed = float(max_speed)
 			start = int(start)
 			net_start = int(start)
 			sumup = float(sumup)
 	gx = -1
 	gy = -1
 	gz = -100
+	gradi = 0
+	cal_prevh = 0
 	while True:
 		xyz = lsm.accelerometer()
 		start += 1
@@ -298,26 +316,30 @@ if __name__ == "__main__":
 		T, P, H = readData()
 		nowh = gps.altitude if sea_P < P else ((sea_P / P) ** (1 / 5.257) - 1) * (T + 273.15) / 0.0065
 		tempdist = 0 if prev_speed == -1 else (prev_speed + tempspeed) / 7.2
-		grad = 0 if prev_alt == -1 or tempdist == 0 else int((nowh - prev_alt) / tempdist * 10) / 10
 		net_start += 1
+		if sumdist - cal_temp > 20:
+			gradi = (nowh - cal_prevh) / (sumdist - cal_temp) * 100
+			cal_prevh = nowh
+			cal_temp = sumdist
 		if (abs(xyz[0] - gx < 0.02 and abs(xyz[1] - gy) < 0.02 and abs(xyz[2] - gz) < 0.02)) or calc_count % 2 == 1:
 			tempspeed = 0
-			grad = 0
 			tempdist = 0
 			net_start -= 1
 			prev_alt = nowh
+			cal_temp -= 1
 			if calc_count % 2 == 1: start -= 1
-		T = int(T * 1000) / 1000
+		max_speed = max(max_speed, tempspeed)
+		T = int(T * 100) / 100
 		h = gps.timestamp[0] if gps.timestamp[0] < 24 else gps.timestamp[0] - 24
 		speed = tk.Label(app.main_frame, text="速度 [km/h]\n" + str(int(tempspeed * 10) / 10), font=('Helvetica', '14'), relief=tk.RIDGE, bd=1)
 		speed.place(relheight=0.25, relwidth=0.5, relx=0, rely=0)
 		speed.update()
 		speed.forget()
-		temperture = tk.Label(app.main_frame, text="気温 [℃]\n" + str(int(T * 100) / 100), font=('Helvetica',14), relief=tk.RIDGE, bd=1)
+		temperture = tk.Label(app.main_frame, text="最高速度 [km/h]\n" + str(int(max_speed * 10) / 10), font=('Helvetica',14), relief=tk.RIDGE, bd=1)
 		temperture.place(relheight=0.25, relwidth=0.5, relx=0.5, rely=0)
 		temperture.update()
 		temperture.forget()
-		grad = tk.Label(app.main_frame, text="斜度 [%]\n" + str(int(grad * 10) / 10), font=('Helvetica', '14'), relief=tk.RIDGE, bd=1)
+		grad = tk.Label(app.main_frame, text="斜度 [%]\n" + str(int(gradi * 10) / 10), font=('Helvetica', '14'), relief=tk.RIDGE, bd=1)
 		grad.place(relheight=0.25, relwidth=0.5, relx=0.5, rely=0.25)
 		grad.update()
 		grad.forget()
@@ -337,7 +359,7 @@ if __name__ == "__main__":
 		net.place(relheight=0.25, relwidth=0.5, relx=0.5, rely=0)
 		net.update()
 		net.forget()
-		humid = tk.Label(app.frame1, text="湿度 [%]\n" + str(int(H * 10) / 10), font=('Helvetica', '14'), relief=tk.RIDGE, bd=1)
+		humid = tk.Label(app.frame1, text="温度 [℃]\n" + str(T), font=('Helvetica', '14'), relief=tk.RIDGE, bd=1)
 		humid.place(relheight=0.25, relwidth=0.5, relx=0.5, rely=0.25)
 		humid.update()
 		humid.forget()
@@ -348,7 +370,8 @@ if __name__ == "__main__":
 		if prev_alt != -1 and prev_alt < nowh: sumup += nowh - prev_alt
 		sumdist += tempdist
 		prev_alt = nowh
-		prev_speed = gps.speed[2]
+		prev_speed = tempspeed
+		cal_temp += 1
 		gx = xyz[0]
 		gy = xyz[1]
 		gz = xyz[2]
